@@ -693,7 +693,7 @@ function submitAssessment() {
 
   // NEW: Automatic Push to Google Sheets
   // This sends data to your sheet so you don't have to manually export it from students
-  fetch('YOUR_SHEETDB_API_URL_HERE', {
+  fetch('https://sheetdb.io/api/v1/3r6l3zd2oamul', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ data: [record] })
