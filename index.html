@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NDIE Strategic Recruitment Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy:   #0B1F3A;
+    --ink:    #0F0F0F;
+    --sand:   #F5F0E8;
+    --amber:  #E87722;
+    --amber2: #F5A54A;
+    --steel:  #2C3E50;
+    --mist:   #ECF0F4;
+    --green:  #1A7A4A;
+    --red:    #C0392B;
+    --gray:   #6B7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--sand);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--navy);
+    padding: 28px 40px 22px;
+    border-bottom: 4px solid var(--amber);
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-left h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem; color: #fff; letter-spacing: 2px;
+  }
+  .header-left p { font-size: .8rem; color: var(--amber2); font-family: 'DM Mono', monospace; }
+  .progress-wrap { display: flex; align-items: center; gap: 12px; }
+  .progress-bar-bg {
+    width: 180px; height: 6px; background: rgba(255,255,255,.15);
+    border-radius: 4px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: var(--amber);
+    border-radius: 4px; width: 0%;
+    transition: width .4s ease;
+  }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: .78rem; color: #aaa; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO SCREEN ── */
+  #screen-intro {
+    max-width: 680px; margin: 60px auto; padding: 0 24px;
+  }
+  .intro-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 48px 40px;
+    box-shadow: 0 4px 32px rgba(0,0,0,.06);
+  }
+  .intro-card .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: .72rem;
+    color: var(--amber); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px;
+  }
+  .intro-card h2 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem;
+    color: var(--navy); margin-bottom: 8px; line-height: 1.1;
+  }
+  .intro-card .subtitle {
+    font-size: .95rem; color: var(--gray); margin-bottom: 32px; line-height: 1.6;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label {
+    font-size: .78rem; font-weight: 600; color: var(--steel);
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .form-group input {
+    border: 1.5px solid #ddd; border-radius: 8px; padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif; font-size: .92rem; color: var(--ink);
+    background: var(--mist); transition: border-color .2s;
+    outline: none;
+  }
+  .form-group input:focus { border-color: var(--amber); background: #fff; }
+  .err-msg { font-size: .78rem; color: var(--red); margin-top: 4px; display: none; }
+  .rules-box {
+    background: var(--navy);
+    border-radius: 8px; padding: 18px 20px; margin-bottom: 28px;
+  }
+  .rules-box li {
+    font-size: .84rem; color: rgba(255,255,255,.78);
+    margin-bottom: 6px; padding-left: 14px; position: relative;
+  }
+  .rules-box li::before { content: "—"; position: absolute; left: 0; color: var(--amber); }
+  .btn-start {
+    width: 100%; padding: 16px; background: var(--navy);
+    color: #fff; border: none; border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem;
+    letter-spacing: 2px; cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  .btn-start:hover { background: var(--amber); transform: translateY(-1px); }
+  .already-msg {
+    text-align: center; padding: 60px 24px;
+    font-size: 1.1rem; color: var(--gray);
+  }
+
+  /* ── QUIZ SCREEN ── */
+  #screen-quiz { max-width: 760px; margin: 40px auto; padding: 0 24px 80px; }
+
+  .q-counter {
+    font-family: 'DM Mono', monospace; font-size: .78rem;
+    color: var(--gray); margin-bottom: 28px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .q-counter span { color: var(--amber); font-weight: 600; }
+
+  .question-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 40px 36px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.05);
+    margin-bottom: 16px;
+  }
+  .question-text {
+    font-size: 1.05rem; font-weight: 500;
+    line-height: 1.65; color: var(--navy); margin-bottom: 28px;
+  }
+  .question-num {
+    font-family: 'DM Mono', monospace; font-size: .72rem;
+    color: var(--amber); margin-bottom: 8px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-label {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 18px; border-radius: 8px;
+    border: 1.5px solid #e5e7eb; cursor: pointer;
+    transition: all .18s; user-select: none;
+  }
+  .option-label:hover { border-color: var(--amber); background: #fffaf5; }
+  .option-label input[type="radio"] { display: none; }
+  .option-label.selected {
+    border-color: var(--navy); background: var(--navy);
+    color: #fff;
+  }
+  .option-letter {
+    font-family: 'DM Mono', monospace; font-size: .78rem;
+    font-weight: 600; width: 22px; flex-shrink: 0;
+    color: var(--amber); padding-top: 1px;
+  }
+  .option-label.selected .option-letter { color: var(--amber2); }
+  .option-text { font-size: .93rem; line-height: 1.5; }
+
+  /* Navigation */
+  .q-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 16px; gap: 12px;
+  }
+  .btn-nav {
+    padding: 12px 28px; border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem;
+    letter-spacing: 1.5px; cursor: pointer; border: 2px solid transparent;
+    transition: all .18s;
+  }
+  .btn-prev {
+    background: transparent; border-color: #ccc; color: var(--gray);
+  }
+  .btn-prev:hover { border-color: var(--navy); color: var(--navy); }
+  .btn-next {
+    background: var(--navy); color: #fff; border-color: var(--navy);
+  }
+  .btn-next:hover { background: var(--amber); border-color: var(--amber); }
+  .btn-submit {
+    background: var(--green); color: #fff; border-color: var(--green);
+    padding: 14px 36px;
+  }
+  .btn-submit:hover { background: #155c38; border-color: #155c38; }
+
+  .unanswered-warn {
+    font-size: .82rem; color: var(--red); font-weight: 500;
+    display: none;
+  }
+
+  /* ── DONE SCREEN ── */
+  #screen-done {
+    max-width: 600px; margin: 80px auto; padding: 0 24px;
+    text-align: center;
+  }
+  .done-card {
+    background: #fff; border-radius: 16px; padding: 56px 40px;
+    box-shadow: 0 4px 32px rgba(0,0,0,.08); border: 1px solid #ddd;
+  }
+  .done-icon { font-size: 3.5rem; margin-bottom: 20px; }
+  .done-card h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem; color: var(--navy); margin-bottom: 10px;
+  }
+  .done-card p { font-size: .95rem; color: var(--gray); line-height: 1.7; }
+
+  /* ── ADMIN SCREEN ── */
+  #screen-admin { padding: 40px 32px; max-width: 1200px; margin: 0 auto; }
+  .admin-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+  }
+  .admin-header h2 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 2rem;
+    color: var(--navy); letter-spacing: 1px;
+  }
+  .admin-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-admin {
+    padding: 10px 20px; border-radius: 7px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: .87rem; font-weight: 600;
+    border: 1.5px solid transparent; transition: all .18s;
+  }
+  .btn-export { background: var(--green); color: #fff; }
+  .btn-export:hover { background: #155c38; }
+  .btn-clear { background: transparent; border-color: var(--red); color: var(--red); }
+  .btn-clear:hover { background: var(--red); color: #fff; }
+  .btn-logout { background: var(--navy); color: #fff; }
+  .btn-logout:hover { background: var(--steel); }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+  .stat-box {
+    background: #fff; border-radius: 10px;
+    padding: 18px 20px; border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+  .stat-box .stat-val {
+    font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem;
+    color: var(--navy); line-height: 1;
+  }
+  .stat-box .stat-lbl { font-size: .76rem; color: var(--gray); margin-top: 4px; }
+
+  .results-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #e5e7eb; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  thead th {
+    background: var(--navy); color: #fff; padding: 12px 14px;
+    text-align: left; white-space: nowrap;
+    font-family: 'DM Mono', monospace; font-size: .75rem;
+    letter-spacing: .5px;
+  }
+  tbody tr:nth-child(even) { background: var(--mist); }
+  tbody td { padding: 11px 14px; color: var(--steel); border-bottom: 1px solid #eee; }
+  .score-badge {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 20px; font-weight: 600; font-size: .82rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .score-hi  { background: #d4edda; color: #155c38; }
+  .score-mid { background: #fff3cd; color: #856404; }
+  .score-lo  { background: #f8d7da; color: #721c24; }
+  .empty-state {
+    text-align: center; padding: 60px 24px;
+    color: var(--gray); font-size: .95rem;
+  }
+
+  /* ── ADMIN LOGIN ── */
+  #screen-admin-login { max-width: 420px; margin: 100px auto; padding: 0 24px; }
+  .login-card {
+    background: #fff; border-radius: 12px;
+    padding: 40px 36px; border: 1px solid #ddd;
+    box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  }
+  .login-card h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem; color: var(--navy); margin-bottom: 6px;
+  }
+  .login-card p { font-size: .85rem; color: var(--gray); margin-bottom: 24px; }
+  .login-card input {
+    width: 100%; padding: 12px 14px; border-radius: 8px;
+    border: 1.5px solid #ddd; font-size: .93rem;
+    font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 14px;
+    background: var(--mist);
+  }
+  .login-card input:focus { border-color: var(--amber); }
+  .login-card button {
+    width: 100%; padding: 14px;
+    background: var(--navy); color: #fff; border: none;
+    border-radius: 8px; cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 2px;
+  }
+  .login-err { color: var(--red); font-size: .82rem; margin-top: 8px; display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .header { padding: 18px 20px; }
+    .progress-bar-bg { width: 120px; }
+    .question-card { padding: 24px 20px; }
+    .q-nav { flex-direction: column; }
+    .btn-nav { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>NDIE Strategic Audit</h1>
+    <p id="header-sub">Recruitment Assessment · 50 Questions</p>
+  </div>
+  <div class="progress-wrap" id="progress-wrap" style="display:none">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill"></div></div>
+    <div class="progress-label" id="prog-label">0 / 50</div>
+  </div>
+</div>
+
+<!-- SCREEN: Already taken -->
+<div class="screen" id="screen-already">
+  <div class="already-msg">
+    <div style="font-size:2.5rem;margin-bottom:16px">🔒</div>
+    <strong>Assessment already completed.</strong><br/>
+    This device has already submitted a response. Each candidate may appear only once.
+  </div>
+</div>
+
+<!-- SCREEN: Intro / Registration -->
+<div class="screen" id="screen-intro">
+  <div class="intro-card">
+    <div class="eyebrow">NDIE · QCI / NBQP · BD Division</div>
+    <h2>Strategic Recruitment Audit</h2>
+    <p class="subtitle">
+      50 scenario-based questions. No pass or fail. Demonstrate your professional judgment.<br/>
+      Complete all questions before submitting. You may not return after submission.
+    </p>
+
+    <ul class="rules-box" style="list-style:none;padding-left:0">
+      <li>Allowed only once — your device is locked after submission</li>
+      <li>50 questions — select the most professional response</li>
+      <li>No timer — take the time you need</li>
+      <li>Results are reviewed only by the hiring team</li>
+    </ul>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="f-name" placeholder="Your full name" autocomplete="name"/>
+        <span class="err-msg" id="e-name">Required</span>
+      </div>
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="f-phone" placeholder="+91 XXXXX XXXXX" autocomplete="tel"/>
+        <span class="err-msg" id="e-phone">Valid 10-digit number required</span>
+      </div>
+      <div class="form-group">
+        <label>Email Address *</label>
+        <input type="email" id="f-email" placeholder="you@example.com" autocomplete="email"/>
+        <span class="err-msg" id="e-email">Valid email required</span>
+      </div>
+      <div class="form-group">
+        <label>Years of Experience *</label>
+        <input type="number" id="f-exp" placeholder="e.g. 5" min="0" max="50"/>
+        <span class="err-msg" id="e-exp">Required (0 or more)</span>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startAssessment()">BEGIN ASSESSMENT →</button>
+  </div>
+</div>
+
+<!-- SCREEN: Quiz -->
+<div class="screen" id="screen-quiz">
+  <div id="quiz-content"></div>
+</div>
+
+<!-- SCREEN: Done -->
+<div class="screen" id="screen-done">
+  <div class="done-card">
+    <div class="done-icon">✅</div>
+    <h2>Submission Complete</h2>
+    <p>
+      Thank you for completing the NDIE Strategic Recruitment Audit.<br/><br/>
+      Your responses have been recorded and will be reviewed by the hiring team.<br/>
+      We will be in touch regarding next steps.
+    </p>
+  </div>
+</div>
+
+<!-- SCREEN: Admin Login -->
+<div class="screen" id="screen-admin-login">
+  <div class="login-card">
+    <h2>Admin Access</h2>
+    <p>Enter the admin password to view results.</p>
+    <input type="password" id="admin-pwd" placeholder="Password" onkeydown="if(event.key==='Enter')adminLogin()"/>
+    <button onclick="adminLogin()">UNLOCK RESULTS</button>
+    <div class="login-err" id="login-err">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- SCREEN: Admin Dashboard -->
+<div class="screen" id="screen-admin">
+  <div class="admin-header">
+    <h2>Results Dashboard</h2>
+    <div class="admin-controls">
+      <button class="btn-admin btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn-admin btn-clear" onclick="clearAllData()">🗑 Clear All Data</button>
+      <button class="btn-admin btn-logout" onclick="adminLogout()">↩ Logout</button>
+    </div>
+  </div>
+  <div class="stats-row" id="stats-row"></div>
+  <div class="results-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Experience</th>
+          <th>Score</th>
+          <th>Hire ✓</th>
+          <th>Passive</th>
+          <th>Defensive ✗</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none">No submissions yet.</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// DATA — Questions + Answer Keys
+// ══════════════════════════════════════════════════════════════════
+const QUESTIONS = [
+  {q:"A stakeholder President forgets your meeting and is leaving for a wedding.",opts:["Offer to drive with him or meet at the venue for 10 minutes to secure the date.","Report that the stakeholder was unavailable and wait for a new lead.","Leave your card with his assistant and follow up tomorrow."]},
+  {q:"The cluster database you are given is 3 years out of date.",opts:["Call the old numbers and report 'wrong numbers' as completed tasks.","Ask for a paid lead-gen tool subscription from the office.","Physically visit the local GST office or power utility for updated contacts."]},
+  {q:"An MSME owner says, 'I'll register when my accountant is back tomorrow.'",opts:["Ask for the accountant's number to explain the 'Paid Status' steps directly.","Set a reminder in the CRM to call back in 48 hours.","Mark the lead as 'Interested' and move to the next call."]},
+  {q:"You are at 48/50 registrations on the last day of the month.",opts:["Stay at the cluster until 9 PM and visit the last 2 leads to close them.","Report 48/50 and explain it was a 'good effort.'","Ask if the missing 2 can be added to next month's target."]},
+  {q:"You forgot to update the CRM for 3 days due to heavy travel.",opts:["Only update the leads that actually converted.","Wait until the weekend to do a bulk update from memory.","Stay up late on the 3rd night to ensure every data point is accurate."]},
+  {q:"A stakeholder asks a technical question you don't know the answer to.",opts:["'I'll get the spec from our technical cell and call you by 4 PM today.'","'It's complex; you can find the details on our official website.'","Try to provide a general answer so you don't look uninformed."]},
+  {q:"You are in a Tier-3 city with no hotel Wi-Fi and a report is due.",opts:["Wait until you reach a bigger city the next day.","Use a phone hotspot or find a local Cyber Cafe to finish by EOD.","Inform the team that 'internet issues' delayed the work."]},
+  {q:"The ZED website is slow while 10 owners are waiting to register.",opts:["Take details on paper and promise to enter them manually tonight.","Tell them to come back tomorrow when the server is fixed.","Sit and wait for the page to load, even if it takes hours."]},
+  {q:"Your regional lead is 'coasting,' slowing down your dashboard updates.",opts:["Bypass the lead and send data to the Senior Advisor for verification.","Complain about the lead to your fellow Analysts.","Slow down your own pace to match the lead's workflow."]},
+  {q:"What defines a 'successful day' in this role?",opts:["Completing the daily call log and reporting to the supervisor.","The number of 'Paid Status' confirmations on the dashboard.","The total number of hours spent on the field."]},
+  {q:"You need a venue for a session but have zero budget.",opts:["Ask the office to approve a budget or postpone the event.","Conduct a virtual session instead.","Negotiate with a local MSME owner to use their hall for free branding."]},
+  {q:"A lead says they won't pay because the competitor is 'cheaper.'",opts:["Pivot the pitch to focus on 'QCI/ZED Credibility' and ROI.","Ask your senior for a discount to match the price.","Tell the lead the competitor is 'fake' without proof."]},
+  {q:"You have 200+ leads in your pipeline. How do you call them?",opts:["Call them in alphabetical order.","Categorize by 'Heat Level' and touch 'Hot' leads every 24 hours.","Call the 'friendly' ones first and leave difficult ones for Friday."]},
+  {q:"A lead 'drops off' after the payment stage.",opts:["Follow a sequence: Phone → WhatsApp → Personal Visit.","Send a weekly follow-up email until they respond.","Archive the lead if they don't answer one final call."]},
+  {q:"You are asked for a 9 AM report but have a 5 AM flight.",opts:["Try to do it on the flight and send it at 10:30 AM.","Finish it at 11 PM the night before and schedule the email.","Ask for an extension because you are 'traveling for work.'"]},
+  {q:"Presentation to 50 owners in a regional language you don't know.",opts:["Stick to English/Hindi slides and hope they understand.","Find a local 'Association Volunteer' to translate core points.","Cut the presentation short and hand out brochures."]},
+  {q:"An Association President is refusing to give you a platform.",opts:["Find a Senior Member he respects to 'vouch' for the project.","Keep sending 'Follow-up' emails every Tuesday.","Report that the 'Association is not supportive.'"]},
+  {q:"Your email to a CEO has a spelling mistake he points out.",opts:["Ignore the comment and continue the sales pitch.","Acknowledge immediately, correct it, and refocus on the value.","Blame the 'Autocorrect' or a junior."]},
+  {q:"An angry owner had a bad experience with a different govt scheme.",opts:["Interrupt him to explain why ZED is 'better.'","Listen for 5 minutes, then explain how ZED targets his efficiency.","Tell him you're just an Analyst and he should call the helpline."]},
+  {q:"Transport breaks down after factory visit 1 of 5.",opts:["Hire a local bike/auto or walk to the next 4 factories.","Wait for the transport to be fixed.","Head back to the hotel and reschedule."]},
+  {q:"A 'bandh' or strike cancels your cluster event last minute.",opts:["Take the day off since it's 'outside forces.'","Wait for your supervisor to tell you what to do.","Call all leads and convert to one-on-one phone consultations."]},
+  {q:"You are asked to move regions with 2 days' notice.",opts:["'Understood. I will spend 48 hours on handover and new mapping.'","'I need at least a week to settle personal affairs.'","'Can't someone else from that region handle it?'"]},
+  {q:"'Minimal supervision' in the JD means:",opts:["'I expect a weekly call to be told what to do next.'","'My boss should only see my name in Targets Met, not To-Do.'","'I don't have to report timings as long as work gets done.'"]},
+  {q:"You have two events in two cities on the same day.",opts:["Train an Association Volunteer for one; execute the other.","Try to be at both by rushing, even if quality suffers.","Ask the supervisor to cancel one."]},
+  {q:"An owner says, 'I don't have a computer to register.'",opts:["Tell him to go to a cyber cafe.","Mark him as 'Disqualified due to lack of tech.'","Use your own tablet/laptop to register him on the spot."]},
+  {q:"Your reimbursement is delayed by 15 days.",opts:["'As long as the work isn't stopping, I'll manage.'","'I won't travel to the next cluster until I am paid.'","Stop answering calls until it is settled."]},
+  {q:"500 registration opportunity if you work on a public holiday.",opts:["Ask if I will get 'Compensatory Off' first.","Take the opportunity and celebrate after the 'Paid Status.'","Tell the stakeholder we are closed for the holiday."]},
+  {q:"How do you handle a 'Silent' lead?",opts:["Leave a voicemail and wait.","Call from a different number or visit their office in person.","Delete them from the pipeline."]},
+  {q:"A junior is disrespectful to you in front of a stakeholder.",opts:["Ignore it to save the deal; have a 'brutally honest' talk later.","Argue with him in front of the stakeholder.","Stay quiet and complain to the boss later."]},
+  {q:"Choice: Stable 10% growth or risky 50% growth.",opts:["10%. It's safer and more sustainable.","50%. I'd rather try a new strategy than settle for slow.","Whichever the boss chooses."]},
+  {q:"WhatsApp to a lead who hasn't paid.",opts:["'Dashboard ready, pending fee. Complete by 4 PM for this batch.'","'Dear Sir, gentle reminder regarding pending payment...'","'Why haven't you paid? Please do it now.'"]},
+  {q:"Monthly report shows you at 70% of target.",opts:["'I am at 70% because of the strike and holidays.'","'I am at 70%, which is better than other regions.'","'I am at 70%. Here is the plan to bridge the 30% gap by Day 5.'"]},
+  {q:"JD says 'Hunter.' What does that mean to you?",opts:["'I wait for the marketing team to provide qualified leads.'","'I find my own associations, OEMs, and data to close deals.'","'I follow the database I was given very strictly.'"]},
+  {q:"You find a 'cheating' way to hit 100 registrations with fake data.",opts:["Reject it. No actual MSME involvement is a failure of Quality.","Do it just once to hit the monthly target.","Ask if the boss will find out."]},
+  {q:"A factory owner says ZED is 'more red tape.'",opts:["'It reduces waste and costs, increasing your bottom line.'","'I can share the government manual to explain.'","'It is mandatory for government tenders.'"]},
+  {q:"You realize you will be 30 mins late for a meeting.",opts:["Call at 8:30 AM (before start) and work while in transit.","Send a WhatsApp at 9:05 AM.","Sneak in quietly at 9:30 AM."]},
+  {q:"You see a colleague struggling with a registration.",opts:["'I'll do it for you, but don't tell the boss.'","'Let me show you. Watch me do one, then you do the next five.'","'That's not my region, not my problem.'"]},
+  {q:"What is your 'Go-To' tool for daily productivity?",opts:["Waiting for the morning briefing.","A self-maintained 'Relentless' follow-up calendar.","My email inbox."]},
+  {q:"You spilled coffee on your shirt 1 hour before a CEO meeting.",opts:["Buy a new shirt or wear a blazer to cover it; do not miss it.","Call and ask to move the meeting by 30 minutes.","Go home to change and reschedule for tomorrow."]},
+  {q:"Why hire a 36-year-old over a 22-year-old?",opts:["'I have more years of experience on my CV.'","'I'm looking for a stable government-adjacent job.'","'I don't need training to handle a difficult CEO. I deliver Day 1.'"]},
+  {q:"You are given a tedious data task 'beneath' your role.",opts:["Ask if an intern can do it so you can focus on policy.","Do it slowly while prioritizing 'important' tasks.","Complete it accurately and then propose an automation."]},
+  {q:"Describe 'Ownership' in one word.",opts:["Responsibility.","Employment.","Tasks."]},
+  {q:"A lead asks for a 'kickback' or bribe to register.",opts:["Ask the boss if this is allowed.","Refuse and explain the value of ZED as a merit-based system.","Tell him I'll 'check and get back.'"]},
+  {q:"You are 100% sure a strategy won't work, but the boss ordered it.",opts:["Execute it exactly as told, even if it fails.","Provide the data on why it might fail, then offer an alternative.","Do it my own way secretly and hope he doesn't notice."]},
+  {q:"A CEO is angry because his certification was delayed by HR.",opts:["Take ownership, apologize, and stay on the phone until HR fixes it.","Tell him it's HR's fault and give him their extension.","Ignore his calls until the certificate is ready."]},
+  {q:"Your 30-day goal as a new hire:",opts:["To understand the division's hierarchy.","To clear the regional backlog and secure 50+ 'Paid Status.'","To read all the manual and policy documents."]},
+  {q:"You see a 'bottleneck' in the CRM process.",opts:["Document it and propose a solution to the Senior Advisor.","Complain to the other Analysts.","Keep following the slow process because it's 'the rule.'"]},
+  {q:"An OEM wants a session on Sunday morning.",opts:["Tell him the office is closed on Sundays.","Execute the session; the OEM's supply chain is the priority.","Ask for overtime pay before agreeing."]},
+  {q:"If you fail a target, what do you say?",opts:["'The market was tough this month.'","'I failed because I didn't pivot fast enough; here is the correction.'","'The leads provided were poor quality.'"]},
+  {q:"Why are you here today?",opts:["To prove I am the 'Hunter' this division needs.","To explore a career in public policy.","Because I need a job."]}
+];
+
+// Scoring key from document
+// Hire=+1, Passive=0, Defensive=-1
+// Q1-10 Hire:  1,3,1,1,3,1,2,1,1,2
+// Q1-10 Pass:  3,2,2,2,2,2,1,2,3,1
+// Q1-10 Def:   2,1,3,3,1,3,3,3,2,3
+// (option index 1-based → 0-based below)
+const ANSWER_KEY = [
+  // [hire_idx, passive_idx, defensive_idx] (0-based)
+  [0,2,1],[2,1,0],[0,1,2],[0,1,2],[2,1,0],
+  [0,1,2],[1,0,2],[0,1,2],[0,1,2],[1,0,2],
+  [2,0,1],[0,1,2],[1,0,2],[0,1,2],[1,0,2],
+  [1,0,2],[0,1,2],[1,0,2],[1,0,2],[0,1,2],
+  [2,1,0],[0,1,2],[1,0,2],[0,1,2],[2,0,1],
+  [0,1,2],[1,0,2],[1,0,2],[0,1,2],[1,0,2],
+  [0,1,2],[2,0,1],[1,0,2],[0,1,2],[0,1,2],
+  [0,1,2],[1,0,2],[1,0,2],[0,1,2],[2,0,1],
+  [2,0,1],[0,1,2],[1,0,2],[1,0,2],[0,1,2],
+  [1,0,2],[0,1,2],[1,0,2],[1,0,2],[0,1,2]
+];
+
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+const STORAGE_KEY   = 'ndie_submitted';
+const RESULTS_KEY   = 'ndie_results';
+const ADMIN_PWD     = 'NDIE@Admin2025';  // ← Change this password
+const LETTERS       = ['A','B','C'];
+
+let answers    = new Array(50).fill(null);
+let currentQ   = 0;
+let candidate  = {};
+
+// ══════════════════════════════════════════════════════════════════
+// ROUTING
+// ══════════════════════════════════════════════════════════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function init() {
+  const hash = location.hash;
+  if (hash === '#admin') { show('screen-admin-login'); return; }
+  if (localStorage.getItem(STORAGE_KEY)) { show('screen-already'); return; }
+  show('screen-intro');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// REGISTRATION
+// ══════════════════════════════════════════════════════════════════
+function startAssessment() {
+  const name  = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const exp   = document.getElementById('f-exp').value.trim();
+  let ok = true;
+
+  const showErr = (id, msg, show) => {
+    const el = document.getElementById(id);
+    el.style.display = show ? 'block' : 'none';
+    if (msg) el.textContent = msg;
+  };
+
+  if (!name) { showErr('e-name', 'Full name is required.', true); ok = false; }
+  else showErr('e-name','',false);
+
+  const ph = phone.replace(/\D/g,'');
+  if (ph.length < 10) { showErr('e-phone','Enter a valid 10-digit number.',true); ok = false; }
+  else showErr('e-phone','',false);
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('e-email','Enter a valid email.',true); ok = false; }
+  else showErr('e-email','',false);
+
+  if (exp === '' || isNaN(exp) || Number(exp) < 0) { showErr('e-exp','Enter 0 or more years.',true); ok = false; }
+  else showErr('e-exp','',false);
+
+  if (!ok) return;
+
+  candidate = { name, phone, email, exp: Number(exp) };
+  answers = new Array(50).fill(null);
+  currentQ = 0;
+  renderQuestion(0);
+  show('screen-quiz');
+  document.getElementById('progress-wrap').style.display = 'flex';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// QUIZ RENDERING
+// ══════════════════════════════════════════════════════════════════
+function renderQuestion(idx) {
+  currentQ = idx;
+  const q = QUESTIONS[idx];
+  const answered = answers[idx];
+  const isLast = idx === 49;
+  const isFirst = idx === 0;
+
+  // Progress
+  const answered_count = answers.filter(a => a !== null).length;
+  document.getElementById('prog-fill').style.width = ((answered_count/50)*100)+'%';
+  document.getElementById('prog-label').textContent = answered_count+' / 50';
+
+  const html = `
+    <div class="q-counter">Question <span>${idx+1}</span> of 50</div>
+    <div class="question-card">
+      <div class="question-num">Q${String(idx+1).padStart(2,'0')}</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((opt,i) => `
+          <label class="option-label ${answered===i?'selected':''}" id="opt-${i}" onclick="selectAnswer(${idx},${i})">
+            <input type="radio" name="q${idx}" value="${i}" ${answered===i?'checked':''}>
+            <span class="option-letter">${LETTERS[i]}</span>
+            <span class="option-text">${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+    <div class="q-nav">
+      <button class="btn-nav btn-prev" onclick="goQ(${idx-1})" ${isFirst?'style="visibility:hidden"':''}>← PREV</button>
+      <span class="unanswered-warn" id="warn-unanswered">Please select an answer before continuing.</span>
+      ${isLast
+        ? `<button class="btn-nav btn-submit" onclick="submitAssessment()">SUBMIT ASSESSMENT ✓</button>`
+        : `<button class="btn-nav btn-next" onclick="goQ(${idx+1})">NEXT →</button>`
+      }
+    </div>
+  `;
+  document.getElementById('quiz-content').innerHTML = html;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectAnswer(qIdx, optIdx) {
+  answers[qIdx] = optIdx;
+  document.querySelectorAll('.option-label').forEach((el,i) => {
+    el.classList.toggle('selected', i === optIdx);
+  });
+  // update progress
+  const answered_count = answers.filter(a => a !== null).length;
+  document.getElementById('prog-fill').style.width = ((answered_count/50)*100)+'%';
+  document.getElementById('prog-label').textContent = answered_count+' / 50';
+  document.getElementById('warn-unanswered').style.display = 'none';
+}
+
+function goQ(idx) {
+  if (idx < 0 || idx > 49) return;
+  // Require answer to proceed forward
+  if (idx > currentQ && answers[currentQ] === null) {
+    document.getElementById('warn-unanswered').style.display = 'block';
+    return;
+  }
+  renderQuestion(idx);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SCORING
+// ══════════════════════════════════════════════════════════════════
+function calcScore() {
+  let score = 0, hire = 0, passive = 0, defensive = 0;
+  answers.forEach((ans, i) => {
+    const key = ANSWER_KEY[i];
+    if (ans === key[0])      { score += 1; hire++; }
+    else if (ans === key[1]) { score += 0; passive++; }
+    else if (ans === key[2]) { score -= 1; defensive++; }
+  });
+  return { score, hire, passive, defensive };
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════════════════════
+function submitAssessment() {
+  // Check all answered
+  const unanswered = answers.map((a,i) => a===null?i:-1).filter(i=>i>=0);
+  if (unanswered.length > 0) {
+    alert(`Please answer all questions before submitting.\n\nUnanswered: Q${unanswered.map(i=>i+1).join(', Q')}`);
+    // Go to first unanswered
+    renderQuestion(unanswered[0]);
+    return;
+  }
+
+  const { score, hire, passive, defensive } = calcScore();
+  const now = new Date().toLocaleString('en-IN');
+
+  const record = {
+    ...candidate,
+    score,
+    hire,
+    passive,
+    defensive,
+    submittedAt: now,
+    answers: [...answers]
+  };
+
+  // Save to localStorage results list
+  const existing = JSON.parse(localStorage.getItem(RESULTS_KEY) || '[]');
+  existing.push(record);
+  localStorage.setItem(RESULTS_KEY, JSON.stringify(existing));
+
+  // Mark as submitted (lock device)
+  localStorage.setItem(STORAGE_KEY, '1');
+
+  document.getElementById('progress-wrap').style.display = 'none';
+  show('screen-done');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════════════════════════════
+function adminLogin() {
+  const pwd = document.getElementById('admin-pwd').value;
+  if (pwd === ADMIN_PWD) {
+    renderAdmin();
+    show('screen-admin');
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+function adminLogout() {
+  document.getElementById('admin-pwd').value = '';
+  show('screen-admin-login');
+}
+
+function renderAdmin() {
+  const data = JSON.parse(localStorage.getItem(RESULTS_KEY) || '[]');
+  const tbody = document.getElementById('results-body');
+  const empty = document.getElementById('empty-state');
+
+  // Stats
+  const avg = data.length ? (data.reduce((s,r)=>s+r.score,0)/data.length).toFixed(1) : '—';
+  const top = data.length ? Math.max(...data.map(r=>r.score)) : '—';
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><div class="stat-val">${data.length}</div><div class="stat-lbl">Total Submissions</div></div>
+    <div class="stat-box"><div class="stat-val">${avg}</div><div class="stat-lbl">Avg Score</div></div>
+    <div class="stat-box"><div class="stat-val">${top}</div><div class="stat-lbl">Highest Score</div></div>
+    <div class="stat-box"><div class="stat-val">50</div><div class="stat-lbl">Max Possible</div></div>
+  `;
+
+  if (!data.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = data.map((r,i) => {
+    const pct = ((r.score/50)*100).toFixed(0);
+    const cls = r.score >= 30 ? 'score-hi' : r.score >= 10 ? 'score-mid' : 'score-lo';
+    return `
+      <tr>
+        <td style="color:var(--gray);font-family:'DM Mono',monospace;font-size:.78rem">${i+1}</td>
+        <td><strong>${esc(r.name)}</strong></td>
+        <td style="font-family:'DM Mono',monospace">${esc(r.phone)}</td>
+        <td>${esc(r.email)}</td>
+        <td style="text-align:center">${r.exp} yrs</td>
+        <td><span class="score-badge ${cls}">${r.score > 0 ? '+':''  }${r.score} (${pct}%)</span></td>
+        <td style="color:var(--green);font-weight:600;text-align:center">${r.hire}</td>
+        <td style="color:var(--gray);text-align:center">${r.passive}</td>
+        <td style="color:var(--red);text-align:center">${r.defensive}</td>
+        <td style="color:var(--gray);font-size:.78rem;font-family:'DM Mono',monospace">${esc(r.submittedAt)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function exportCSV() {
+  const data = JSON.parse(localStorage.getItem(RESULTS_KEY) || '[]');
+  if (!data.length) { alert('No data to export.'); return; }
+
+  const header = ['#','Name','Phone','Email','Experience (yrs)','Score','Hire (+1)','Passive (0)','Defensive (-1)','Submitted At'];
+  const rows = data.map((r,i) => [
+    i+1, r.name, r.phone, r.email, r.exp,
+    r.score, r.hire, r.passive, r.defensive, r.submittedAt
+  ]);
+
+  const csv = [header, ...rows]
+    .map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `NDIE_Audit_Results_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function clearAllData() {
+  if (!confirm('⚠ This will permanently delete ALL submission data. Are you sure?')) return;
+  if (!confirm('Last warning: All candidate results will be erased. Continue?')) return;
+  localStorage.removeItem(RESULTS_KEY);
+  renderAdmin();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
