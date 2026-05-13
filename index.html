@@ -663,6 +663,9 @@ function calcScore() {
 // ══════════════════════════════════════════════════════════════════
 // SUBMIT
 // ══════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// SUBMIT - UPDATED WITH SHEETDB INTEGRATION
+// ══════════════════════════════════════════════════════════════════
 function submitAssessment() {
   // Check all answered
   const unanswered = answers.map((a,i) => a===null?i:-1).filter(i=>i>=0);
@@ -677,25 +680,42 @@ function submitAssessment() {
   const now = new Date().toLocaleString('en-IN');
 
   const record = {
-    ...candidate,
-    score,
-    hire,
-    passive,
-    defensive,
-    submittedAt: now,
-    answers: [...answers]
+    name: candidate.name,
+    email: candidate.email,
+    phone: candidate.phone,
+    exp: candidate.exp,
+    score: score,
+    hire: hire,
+    passive: passive,
+    defensive: defensive,
+    submittedAt: now
   };
 
-  // Save to localStorage results list
-  const existing = JSON.parse(localStorage.getItem(RESULTS_KEY) || '[]');
-  existing.push(record);
-  localStorage.setItem(RESULTS_KEY, JSON.stringify(existing));
+  // NEW: Automatic Push to Google Sheets
+  // This sends data to your sheet so you don't have to manually export it from students
+  fetch('YOUR_SHEETDB_API_URL_HERE', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: [record] })
+  })
+  .then(response => {
+    // Save to local storage for the candidate's own view
+    const existing = JSON.parse(localStorage.getItem(RESULTS_KEY) || '[]');
+    existing.push({...record, answers: [...answers]});
+    localStorage.setItem(RESULTS_KEY, JSON.stringify(existing));
 
-  // Mark as submitted (lock device)
-  localStorage.setItem(STORAGE_KEY, '1');
+    // Mark as submitted (lock device)
+    localStorage.setItem(STORAGE_KEY, '1');
 
-  document.getElementById('progress-wrap').style.display = 'none';
-  show('screen-done');
+    document.getElementById('progress-wrap').style.display = 'none';
+    show('screen-done');
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Even if the sheet push fails, finish the quiz locally so the student isn't stuck
+    localStorage.setItem(STORAGE_KEY, '1');
+    show('screen-done');
+  });
 }
 
 // ══════════════════════════════════════════════════════════════════
